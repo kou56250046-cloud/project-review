@@ -59,6 +59,8 @@ export default defineConfig(({ mode }) => {
       chunkSizeWarningLimit: 3000,
       rollupOptions: single ? { output: { inlineDynamicImports: true } } : {},
     },
+    // legacy/ や dist-single/ の HTML を入口として拾わせない
+    optimizeDeps: { entries: ["index.html"] },
     worker: { format: "es" },
     server: { port: 5180, open: false },
   };

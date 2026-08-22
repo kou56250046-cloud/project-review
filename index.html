@@ -49,6 +49,9 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6 3.5h9L19 8v12.5H6z"/><path d="M14.5 3.5V8H19"/><path d="M9 13l2 2 4-4"/></svg>
         <span class="dot" id="rvDot" hidden>0</span>
       </button>
+      <button class="act" data-panel="diagrams" title="図（レイヤー依存・ER・データフロー）" role="tab" aria-selected="false" aria-label="図">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="3.5" width="7" height="5" rx="1"/><rect x="14" y="3.5" width="7" height="5" rx="1"/><rect x="8.5" y="15.5" width="7" height="5" rx="1"/><path d="M6.5 8.5v3h11v-3M12 11.5v4"/></svg>
+      </button>
       <button class="act" data-panel="overview" title="プロジェクト概要" role="tab" aria-selected="false" aria-label="プロジェクト概要">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="4" y="4" width="7" height="9" rx="1"/><rect x="13" y="4" width="7" height="5" rx="1"/><rect x="13" y="11" width="7" height="9" rx="1"/><rect x="4" y="15" width="7" height="5" rx="1"/></svg>
       </button>
@@ -106,6 +109,13 @@
         <button class="side-btn ghost" id="btnExportReview">Markdown で書き出す</button>
         <div class="rel-body" id="rvBody"><div class="empty-note">フォルダを開くと、レビューの進み具合をここに表示します。</div></div>
         <button class="side-btn ghost" id="btnClearReview" style="margin-top:auto">この記録を消す</button>
+      </div>
+
+      <!-- 図 -->
+      <div class="side-panel" data-panel="diagrams" role="tabpanel" aria-label="図">
+        <div class="side-head"><span>図</span></div>
+        <div class="empty-note" style="padding:6px 14px 10px">コードから組み立てた図です。クリックで開きます。</div>
+        <div class="rel-body" id="dgBody"><div class="empty-note">フォルダを開くと、組み立てられる図をここに並べます。</div></div>
       </div>
 
       <!-- 概要 -->

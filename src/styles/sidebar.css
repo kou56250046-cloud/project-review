@@ -123,3 +123,18 @@
 .recent-item .when { color: var(--fg-dim); font-size: 11px; flex: 0 0 auto; }
 .recent-item .del { color: var(--fg-dim); padding: 2px 5px; border-radius: 3px; }
 .recent-item .del:hover { background: var(--ov-4); color: var(--red); }
+
+/* ---------- 図パネル ---------- */
+.dg-item {
+  padding: 10px 14px; cursor: pointer; border-bottom: 1px solid var(--border-soft);
+}
+.dg-item:hover { background: var(--bg-hover); }
+.dg-item:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+.dg-item .nm { font-size: 13px; color: var(--fg); display: flex; align-items: center; gap: 8px; }
+.dg-item .note { font-size: 11.5px; color: var(--fg-muted); margin-top: 3px; }
+.dg-item .warn {
+  font-size: 10.5px; color: var(--rv-flag); border: 1px solid currentColor;
+  border-radius: 9px; padding: 0 6px;
+}
+.dg-item.off .nm { color: var(--fg-dim); }
+.dg-item.off .note { color: var(--fg-dim); }

@@ -32,11 +32,13 @@ import { buildGraphPane } from "./ui/graph.js";
 import { initSettings, applySettings, cycleTheme, zoom, resetZoom, settings } from "./ui/settings.js";
 import { openPalette, closePalette, fill as fillPalette, move as movePalette, run as runPalette, isOpen as paletteOpen, registerCommands } from "./ui/palette.js";
 import { renderRecent, remember, pickFolder } from "./ui/recent.js";
+import { renderDiagramsPanel, invalidateDiagramCache } from "./ui/diagrams.js";
 
 import { buildFilePane, jumpToLine, controllers } from "./viewers/file.js";
 import { buildDiffPane } from "./viewers/diffview.js";
 import { buildBookPane } from "./viewers/book.js";
 import { buildReportPane } from "./viewers/report.js";
+import { buildDiagramPane, DIAGRAM_KINDS } from "./viewers/diagramPane.js";
 
 /* =========================================================================
    ファイルを開く
@@ -57,6 +59,11 @@ const openGraph = () => openTab("graph", "", "関係グラフ", buildGraphPane);
 const openBook = () => openTab("book", "", "まとめて通読", buildBookPane);
 const openReport = () => openTab("report", "", "レビューレポート", buildReportPane);
 const openDiff = (preset) => openTab("diff", "", "ファイルの比較", (pane) => buildDiffPane(pane, preset || {}));
+const openDiagram = (kind) => {
+  if (!S.files.size) { toast("先にフォルダを開いてください"); return; }
+  const meta = DIAGRAM_KINDS[kind] || DIAGRAM_KINDS.layers;
+  openTab("diagram", kind, meta.label, (pane) => buildDiagramPane(pane, kind));
+};
 
 /* =========================================================================
    読み込みの流れ
@@ -74,6 +81,8 @@ async function load(entries, meta = {}) {
   renderOverviewPanel();
   renderInsights();
   renderReviewPanel();
+  invalidateDiagramCache();
+  renderDiagramsPanel();
   refreshBadges();
 
   $("#welcome").style.display = "none";
@@ -143,6 +152,8 @@ function fullReset() {
   $("#insBody").innerHTML = '<div class="empty-note">フォルダを開くと、気づいた点をここに並べます。</div>';
   $("#rvBody").innerHTML = '<div class="empty-note">フォルダを開くと、レビューの進み具合をここに表示します。</div>';
   $("#ovBody").innerHTML = '<div class="empty-note">まだ何も読み込まれていません。</div>';
+  $("#dgBody").innerHTML = '<div class="empty-note">フォルダを開くと、組み立てられる図をここに並べます。</div>';
+  invalidateDiagramCache();
   $("#searchResults").innerHTML = '<div class="empty-note">読み込んだテキストファイルの中身を検索します。</div>';
   $("#welcome").style.display = "flex";
   $("#stRoot").textContent = "フォルダ未選択";
@@ -224,6 +235,7 @@ function switchPanel(name) {
   $$(".side-panel").forEach(p => p.classList.toggle("on", p.dataset.panel === name));
   $("#sidebar").classList.remove("hidden");
   if (name === "insights") renderInsights();
+  if (name === "diagrams") renderDiagramsPanel();
   if (name === "review") renderReviewPanel();
   if (name === "overview") renderOverviewPanel();
 }
@@ -248,6 +260,10 @@ registerCommands([
   { title: "プロジェクト概要を開く", when: hasFiles, run: openOverview },
   { title: "関係グラフを開く", when: hasFiles, run: openGraph },
   { title: "ファイルを比較する（差分）", when: hasFiles, run: () => openDiff() },
+  { title: "レイヤー依存マップを開く", keywords: "layer 層 依存", when: hasFiles, run: () => openDiagram("layers") },
+  { title: "ER 図を開く", keywords: "er database テーブル", when: hasFiles, run: () => openDiagram("er") },
+  { title: "データフロー図を開く", keywords: "flow 流れ", when: hasFiles, run: () => openDiagram("flow") },
+  { title: "API の入口を一覧する", keywords: "endpoint route api", when: hasFiles, run: () => openDiagram("endpoints") },
   { title: "まとめて通読する（ブックモード）", when: hasFiles, run: openBook },
   { title: "レビューレポートを開く", when: hasFiles, run: openReport },
   { title: "全文検索", key: "Ctrl+Shift+F", run: () => { switchPanel("search"); focusSearch(); } },
@@ -412,6 +428,7 @@ actions.openGraph = openGraph;
 actions.openDiff = openDiff;
 actions.openBook = openBook;
 actions.openReport = openReport;
+actions.openDiagram = openDiagram;
 actions.toast = toast;
 actions.reload = reload;
 

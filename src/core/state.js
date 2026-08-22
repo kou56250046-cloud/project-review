@@ -57,6 +57,7 @@ export const actions = {
   openDiff: () => {},
   openBook: () => {},
   openReport: () => {},
+  openDiagram: () => {},
   toast: () => {},
   reload: () => {},
 };
