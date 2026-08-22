@@ -456,26 +456,26 @@ listProjects().then(list => {
 });
 
 /* ---------- 更新の受け取り ----------
-   新しい版が出たら、勝手に入れ替えず知らせて選んでもらう。
-   レビューの途中で画面が作り直されると困るため。 */
+   画面はネットワークを先に見るので、読み込み直せば必ず最新になる。
+   開いたままのときのために、新しい版が有効になったら知らせる。
+   読み込み直すかどうかは利用者が決める（レビューの途中で
+   画面が作り直されると、書きかけのメモが消えてしまうため）。 */
 if (!import.meta.env || !import.meta.env.DEV) {
-  import("virtual:pwa-register").then(({ registerSW }) => {
-    const bar = $("#updatebar");
-    const apply = registerSW({
-      immediate: true,
-      onNeedRefresh() {
-        bar.classList.add("on");
-      },
-      onOfflineReady() {
-        toast("オフラインでも開けるようになりました");
-      },
+  const bar = $("#updatebar");
+  bar.querySelector(".go").onclick = () => location.reload();
+  bar.querySelector(".later").onclick = () => bar.classList.remove("on");
+
+  if ("serviceWorker" in navigator) {
+    // 初回の登録でも制御が移るので、すでに制御されていた場合だけ知らせる
+    const hadController = !!navigator.serviceWorker.controller;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (hadController) bar.classList.add("on");
     });
-    bar.querySelector(".go").onclick = () => {
-      bar.classList.remove("on");
-      apply(true);
-    };
-    bar.querySelector(".later").onclick = () => bar.classList.remove("on");
-  }).catch(() => { /* Service Worker が使えない環境では何もしない */ });
+  }
+
+  import("virtual:pwa-register")
+    .then(({ registerSW }) => registerSW({ immediate: true }))
+    .catch(() => { /* Service Worker が使えない環境では何もしない */ });
 }
 
 // 開発時だけ、見本プロジェクトを読み込むための入口を用意する
