@@ -1,0 +1,136 @@
+/* =========================================================================
+   デザイントークン
+   色はすべてここで定義する。個別 CSS に生の色を書かないこと。
+
+   light-dark(ライト値, ダーク値) を使い、両テーマの値を 1 行にまとめている。
+   実際にどちらが採用されるかは color-scheme が決める。
+     - <html> に data-theme なし … OS 設定に従う
+     - data-theme="light"        … 常にライト
+     - data-theme="dark"         … 常にダーク
+   ========================================================================= */
+
+:root {
+  color-scheme: light dark;
+
+  /* --- 構造 --- */
+  --activity-w: 48px;
+  --sidebar-w: 280px;
+  --titlebar-h: 36px;
+  --statusbar-h: 24px;
+  --tabbar-h: 35px;
+
+  /* --- 書体 --- */
+  --ui: "Segoe UI", -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN",
+        "Yu Gothic UI", Meiryo, "Noto Sans JP", sans-serif;
+  --mono: "Cascadia Code", "Fira Code", Consolas, "SF Mono", Menlo,
+          "Ricty Diminished", "Source Han Code JP", monospace;
+
+  /* --- 文字サイズ（設定パネルから上書きされる） --- */
+  --fs-ui: 13px;
+  --fs-code: 13px;
+  --fs-prose: 15px;
+  --lh-code: 20px;
+  --prose-w: 860px;
+
+  /* ---------------- 面 ---------------- */
+  --bg:            light-dark(#ffffff, #1e1e1e);
+  --bg-sidebar:    light-dark(#f3f3f3, #252526);
+  --bg-activity:   light-dark(#eaeaea, #333333);
+  --bg-tabbar:     light-dark(#f3f3f3, #252526);
+  --bg-tab:        light-dark(#ececec, #2d2d2d);
+  --bg-tab-active: light-dark(#ffffff, #1e1e1e);
+  --bg-input:      light-dark(#ffffff, #3c3c3c);
+  --bg-hover:      light-dark(#e8e8e8, #2a2d2e);
+  --bg-select:     light-dark(#cfe4fb, #04395e);
+  --bg-widget:     light-dark(#f6f6f6, #252526);
+  --bg-head:       light-dark(#f8f8f8, #1f1f1f);   /* エディタ見出し帯 */
+  --bg-code:       light-dark(#f6f8fa, #1b1b1b);   /* Markdown 内コードブロック */
+  --bg-code-head:  light-dark(#eef1f4, #232323);
+  --bg-th:         light-dark(#eef1f4, #2a2d2e);   /* 表ヘッダ */
+  --bg-th-strong:  light-dark(#eef1f4, #2b2b2b);   /* CSV 固定ヘッダ */
+  --bg-th-hover:   light-dark(#e2e6ea, #343434);
+  --bg-rowno:      light-dark(#f2f4f6, #232323);
+  --bg-stage:      light-dark(#e8e8e8, #161616);   /* PDF の下地 */
+  --bg-tip:        light-dark(#ffffff, #111111);
+  --bg-toast:      light-dark(#ffffff, #2b2b2b);
+  --bg-scrim:      light-dark(#00000033, #0000004d);
+  --bg-veil:       light-dark(#0060c022, #007acc22);
+
+  /* ---------------- 罫線 ---------------- */
+  --border:        light-dark(#d4d4d4, #3c3c3c);
+  --border-soft:   light-dark(#e3e3e3, #333333);
+  --border-strong: light-dark(#bfbfbf, #454545);
+  --border-dash:   light-dark(#b5b5b5, #4a4a4a);
+
+  /* ---------------- 文字 ----------------
+     --fg-muted / --fg-dim は本文にも使うため、
+     どちらのテーマでも背景に対し 4.5:1 以上を確保している。 */
+  --fg:         light-dark(#24292f, #d4d4d4);
+  --fg-bright:  light-dark(#16191d, #e7e7e7);
+  --fg-strong:  light-dark(#000000, #ffffff);
+  --fg-body:    light-dark(#24292f, #d8d8d8);
+  --fg-muted:   light-dark(#5c6570, #9d9d9d);
+  --fg-dim:     light-dark(#6b7480, #8a8a8a);
+  --fg-icon:    light-dark(#4a5058, #a8a8a8);
+  --fg-lnum:    light-dark(#8a919b, #7d8590);
+
+  /* ---------------- 強調 ---------------- */
+  --accent:       light-dark(#0060c0, #0e639c);
+  --accent-hover: light-dark(#0072e0, #1177bb);
+  --accent-fg:    #ffffff;
+  --focus:        light-dark(#0060c0, #4daafc);
+  --link:         light-dark(#0969da, #4daafc);
+  --link-line:    light-dark(#0969da44, #4daafc44);
+  --status:       light-dark(#0060c0, #007acc);
+  --status-fg:    #ffffff;
+
+  /* ---------------- 構文・意味色 ---------------- */
+  --green:   light-dark(#0a7c6b, #4ec9b0);
+  --yellow:  light-dark(#7a5d00, #dcdcaa);
+  --orange:  light-dark(#a31515, #ce9178);
+  --blue:    light-dark(#0550ae, #569cd6);
+  --num:     light-dark(#0a7c3f, #b5cea8);
+  --purple:  light-dark(#8250df, #c586c0);
+  --red:     light-dark(#cd3131, #f14c4c);
+  --comment: light-dark(#4f7a3f, #7ca668);
+  --func:    light-dark(#6f42c1, #dcdcaa);
+  --type:    light-dark(#0a7c6b, #4ec9b0);
+  --const:   light-dark(#0550ae, #4fc1ff);
+  --tagname: light-dark(#0550ae, #569cd6);
+  --attr:    light-dark(#116329, #9cdcfe);
+
+  /* ---------------- 重ね色 ----------------
+     ライトでは黒を、ダークでは白を薄く重ねる。 */
+  --ov-1:   light-dark(#0000000a, #ffffff08);
+  --ov-2:   light-dark(#00000010, #ffffff0d);
+  --ov-3:   light-dark(#00000014, #ffffff14);
+  --ov-4:   light-dark(#0000001f, #ffffff1f);
+  --ov-5:   light-dark(#0000002e, #ffffff2e);
+  --line-1: light-dark(#00000012, #ffffff10);
+  --line-2: light-dark(#0000001f, #ffffff1f);
+
+  /* ---------------- 状態 ---------------- */
+  --hit-bg:      light-dark(#fff2c4, #623315);
+  --hit-fg:      light-dark(#6b4a00, #ffd7a8);
+  --line-hit:    light-dark(#e6f4d9, #2b3a1f);
+  --shadow-1:    light-dark(0 4px 18px #0000001f, 0 4px 18px #0009);
+  --shadow-2:    light-dark(0 8px 34px #00000029, 0 8px 34px #000000a6);
+  --shadow-page: light-dark(0 3px 18px #00000024, 0 3px 18px #0000008c);
+
+  /* ---------------- レビュー機能 ---------------- */
+  --rv-done:    light-dark(#0a7c6b, #4ec9b0);
+  --rv-todo:    light-dark(#a06a00, #dcdcaa);
+  --rv-flag:    light-dark(#cd3131, #f14c4c);
+  --rv-note-bg: light-dark(#fffbe6, #2a2a1f);
+
+  /* ---------------- グラフ・下地 ---------------- */
+  --graph-bg-a:       light-dark(#fbfbfb, #232323);
+  --graph-bg-b:       light-dark(#eef0f2, #1a1a1a);
+  --graph-node-stroke: light-dark(#ffffff, #1a1a1a);
+  --graph-link:       light-dark(#00000033, #ffffff26);
+  --checker-a:        light-dark(#f0f0f0, #242424);
+  --checker-b:        light-dark(#e6e6e6, #1c1c1c);
+}
+
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"]  { color-scheme: dark; }

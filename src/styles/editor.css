@@ -1,0 +1,134 @@
+/* =========================================================================
+   エディタ共通 / コードビュー / 構文ハイライト
+   ========================================================================= */
+
+/* ---------- 見出し帯 ---------- */
+.editor-head {
+  flex: 0 0 auto; padding: 7px 16px; border-bottom: 1px solid var(--border-soft);
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: var(--bg-head);
+}
+.crumb { color: var(--fg-muted); font-size: 12px; display: flex; align-items: center; gap: 5px; min-width: 0; }
+.crumb b { color: var(--fg-bright); font-weight: 500; }
+.chip {
+  font-size: 11px; padding: 1px 8px; border-radius: 10px; border: 1px solid var(--border);
+  color: var(--green); background: var(--ov-1); white-space: nowrap;
+}
+.chip.dim { color: var(--fg-muted); }
+.head-sp { flex: 1; }
+.hbtn { padding: 4px 9px; border-radius: 3px; font-size: 12px; color: var(--fg); border: 1px solid var(--border); }
+.hbtn:hover { background: var(--ov-3); }
+.hbtn.on, .hbtn[aria-pressed="true"] { background: var(--accent); border-color: transparent; color: var(--accent-fg); }
+.editor-body { flex: 1; overflow: auto; min-height: 0; position: relative; }
+
+.seg { display: flex; border: 1px solid var(--border); border-radius: 3px; overflow: hidden; }
+.seg button { padding: 3px 9px; font-size: 11px; color: var(--fg-muted); }
+.seg button.on, .seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); }
+.seg button:hover:not(.on):not([aria-pressed="true"]) { background: var(--ov-3); }
+
+/* ---------- コードビュー（仮想スクロール） ---------- */
+.code-view {
+  flex: 1; overflow: auto; min-height: 0; position: relative;
+  font-family: var(--mono); font-size: var(--fs-code); line-height: var(--lh-code);
+}
+.code-sizer { position: relative; min-width: min-content; }
+.code-window { position: absolute; left: 0; right: 0; top: 0; min-width: min-content; will-change: transform; }
+.ln { display: flex; min-width: min-content; height: var(--lh-code); }
+.ln:hover { background: var(--ov-1); }
+.ln.hit { background: var(--line-hit); }
+.ln.cur { background: var(--ov-2); }
+.lnum {
+  flex: 0 0 auto; width: 62px; text-align: right; padding-right: 10px; color: var(--fg-lnum);
+  position: sticky; left: 0; background: var(--bg); user-select: none; cursor: pointer;
+}
+.ln:hover .lnum { color: var(--fg); }
+/* レビュー用ガター（行にメモを付ける） */
+.lgut {
+  flex: 0 0 auto; width: 18px; position: sticky; left: 62px; background: var(--bg);
+  color: transparent; text-align: center; user-select: none; cursor: pointer; font-size: 11px;
+}
+.ln:hover .lgut { color: var(--fg-dim); }
+.lgut.has { color: var(--rv-todo) !important; }
+.lgut.has.flag { color: var(--rv-flag) !important; }
+.lcode { white-space: pre; padding: 0 36px 0 8px; flex: 1; }
+.trunc-note { padding: 14px 20px; color: var(--yellow); font-size: 12.5px; }
+
+/* 行に紐づくメモの吹き出し */
+.line-note {
+  margin: 2px 0 6px 80px; max-width: 720px; background: var(--rv-note-bg);
+  border: 1px solid var(--border); border-left: 3px solid var(--rv-todo); border-radius: 0 5px 5px 0;
+  padding: 8px 12px; font-family: var(--ui); font-size: 12.5px; line-height: 1.6; color: var(--fg);
+  white-space: pre-wrap;
+}
+.line-note.flag { border-left-color: var(--rv-flag); }
+.line-note .nt-act { display: flex; gap: 8px; margin-top: 6px; font-size: 11.5px; }
+.line-note .nt-act button { color: var(--fg-muted); }
+.line-note .nt-act button:hover { color: var(--fg); text-decoration: underline; }
+
+/* ---------- ファイル内検索バー ---------- */
+.find-bar {
+  position: absolute; right: 18px; top: 8px; z-index: 8; display: none;
+  background: var(--bg-widget); border: 1px solid var(--border-strong); border-radius: 5px;
+  box-shadow: var(--shadow-1); padding: 6px 8px; gap: 6px; align-items: center;
+}
+.find-bar.on { display: flex; }
+.find-bar input { width: 190px; background: var(--bg-input); border: 1px solid var(--border); color: var(--fg); padding: 4px 8px; border-radius: 3px; font-size: 12.5px; }
+.find-bar input:focus { outline: none; border-color: var(--focus); }
+.find-bar .cnt { font-size: 11.5px; color: var(--fg-muted); min-width: 62px; text-align: center; font-family: var(--mono); }
+.find-bar button { padding: 3px 7px; border-radius: 3px; color: var(--fg-muted); }
+.find-bar button:hover { background: var(--ov-3); color: var(--fg); }
+
+/* ---------- アウトライン（関数・クラス一覧） ---------- */
+.outline {
+  flex: 0 0 226px; border-left: 1px solid var(--border-soft); overflow: auto;
+  padding: 10px 0 60px; background: var(--bg);
+}
+.outline .t {
+  font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--fg-muted); padding: 0 14px 8px;
+}
+.outline a {
+  display: flex; gap: 7px; align-items: baseline; color: var(--fg); text-decoration: none;
+  font-size: 12.5px; padding: 3px 14px; cursor: pointer; white-space: nowrap;
+}
+.outline a:hover { background: var(--bg-hover); }
+.outline a.on { background: var(--bg-select); }
+.outline a .k { font-family: var(--mono); font-size: 10px; color: var(--fg-dim); flex: 0 0 auto; width: 30px; }
+.outline a .n { overflow: hidden; text-overflow: ellipsis; }
+.outline a.d1 { padding-left: 26px; }
+.outline a.d2 { padding-left: 38px; }
+.code-layout { display: flex; flex: 1; min-height: 0; }
+.code-layout > .code-view { flex: 1; }
+@media (max-width: 1100px) { .outline { display: none; } }
+
+/* ---------- 構文ハイライト ----------
+   highlight.js のテーマ CSS を読み込む代わりに、
+   トークン変数で自前定義している。これでライト / ダークが 1 セットで両立する。 */
+.hljs-comment, .hljs-quote { color: var(--comment); font-style: italic; }
+.hljs-keyword, .hljs-selector-tag, .hljs-literal, .hljs-doctag, .hljs-formula { color: var(--purple); }
+.hljs-keyword.hljs-flow { color: var(--purple); }
+.hljs-string, .hljs-regexp, .hljs-char.escape_, .hljs-addition { color: var(--orange); }
+.hljs-number, .hljs-bullet { color: var(--num); }
+.hljs-built_in, .hljs-type, .hljs-class .hljs-title, .hljs-title.class_ { color: var(--type); }
+.hljs-function .hljs-title, .hljs-title.function_, .hljs-title { color: var(--func); }
+.hljs-variable, .hljs-template-variable, .hljs-params, .hljs-property { color: var(--attr); }
+.hljs-variable.constant_, .hljs-symbol { color: var(--const); }
+.hljs-attr, .hljs-attribute, .hljs-selector-attr, .hljs-selector-pseudo { color: var(--attr); }
+.hljs-name, .hljs-tag, .hljs-template-tag { color: var(--tagname); }
+.hljs-selector-id, .hljs-selector-class { color: var(--yellow); }
+.hljs-section, .hljs-meta { color: var(--blue); }
+.hljs-meta .hljs-string { color: var(--orange); }
+.hljs-deletion { color: var(--red); }
+.hljs-link { color: var(--link); text-decoration: underline; }
+.hljs-emphasis { font-style: italic; }
+.hljs-strong { font-weight: 700; }
+.hljs-subst { color: var(--fg); }
+
+/* 折り返し表示（仮想スクロールでは行高が変わるため、高さも実測に切り替える） */
+.code-view.wrap .code-window { position: static; transform: none !important; }
+.code-view.wrap .code-sizer { height: auto !important; }
+.code-view.wrap .ln { height: auto; }
+.code-view.wrap .lcode { white-space: pre-wrap; word-break: break-word; }
+
+/* 図モード：行間を詰めて罫線の縦線をつなげる */
+.code-view.tight { line-height: 1.2; font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0; }
+.code-view.tight .lcode span { color: inherit !important; }

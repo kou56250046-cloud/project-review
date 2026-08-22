@@ -1,0 +1,12 @@
+node_modules/
+dist/
+dist-single/
+.DS_Store
+*.local
+.vite/
+legacy/_style.css
+legacy/_body.html
+legacy/_script.js
+.playwright-mcp/
+*.png
+!docs/*.png

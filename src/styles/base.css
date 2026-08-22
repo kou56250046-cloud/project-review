@@ -1,0 +1,60 @@
+/* =========================================================================
+   リセットと共通の下地
+   ========================================================================= */
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--ui);
+  font-size: var(--fs-ui);
+  line-height: 1.5;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+button { font-family: inherit; font-size: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+input, select, textarea { font-family: inherit; font-size: inherit; }
+
+/* フォーカスリングは常に見える太さにする（キーボード操作のため） */
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+  border-radius: 2px;
+}
+
+/* hidden 属性は display 指定より優先させる */
+[hidden] { display: none !important; }
+
+/* 読み上げ専用テキスト */
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* キーボードでたどり着いたときだけ現れるスキップリンク */
+.skip-link {
+  position: absolute; left: 8px; top: -60px; z-index: 500;
+  background: var(--accent); color: var(--accent-fg);
+  padding: 8px 14px; border-radius: 4px; font-size: 13px;
+  transition: top .12s;
+}
+.skip-link:focus { top: 8px; }
+
+::-webkit-scrollbar { width: 14px; height: 14px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--ov-5); border: 4px solid transparent;
+  background-clip: content-box; border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--fg-dim); border: 3px solid transparent; background-clip: content-box;
+}
+::-webkit-scrollbar-corner { background: transparent; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+}

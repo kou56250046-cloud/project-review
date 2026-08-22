@@ -1,0 +1,92 @@
+/* =========================================================================
+   長文表示（Markdown / Word / ブックモード）
+   ========================================================================= */
+.prose {
+  max-width: var(--prose-w); margin: 0 auto; padding: 38px 46px 120px;
+  font-size: var(--fs-prose); line-height: 1.85; color: var(--fg-body);
+}
+.prose.wide { max-width: 1100px; }
+
+.prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+  color: var(--fg-strong); line-height: 1.35; margin: 1.9em 0 .7em; font-weight: 600; scroll-margin-top: 20px;
+}
+.prose h1 { font-size: 2em; margin-top: .2em; padding-bottom: .35em; border-bottom: 1px solid var(--border); }
+.prose h2 { font-size: 1.5em; padding-bottom: .3em; border-bottom: 1px solid var(--border-soft); }
+.prose h3 { font-size: 1.22em; }
+.prose h4 { font-size: 1.06em; color: var(--fg-bright); }
+.prose h5, .prose h6 { font-size: 1em; color: var(--fg); }
+.prose p { margin: 0 0 1.1em; }
+.prose a { color: var(--link); text-decoration: none; border-bottom: 1px solid var(--link-line); }
+.prose a:hover { border-bottom-color: var(--link); }
+.prose ul, .prose ol { padding-left: 1.6em; margin: 0 0 1.1em; }
+.prose li { margin: .3em 0; }
+.prose li::marker { color: var(--fg-muted); }
+.prose blockquote {
+  margin: 1.2em 0; padding: .4em 1.1em; border-left: 3px solid var(--accent);
+  background: var(--ov-1); color: var(--fg-muted); border-radius: 0 4px 4px 0;
+}
+.prose blockquote p:last-child { margin-bottom: 0; }
+.prose hr { border: none; border-top: 1px solid var(--border); margin: 2.2em 0; }
+.prose img { max-width: 100%; border-radius: 4px; border: 1px solid var(--border-soft); background: var(--ov-1); }
+.prose code {
+  font-family: var(--mono); font-size: .88em; background: var(--ov-3);
+  padding: .16em .42em; border-radius: 3px; color: var(--orange);
+}
+.prose pre { margin: 1.3em 0; background: var(--bg-code); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.prose pre code { background: none; padding: 0; color: inherit; font-size: var(--fs-code); line-height: 1.65; display: block; }
+
+.cb-head {
+  display: flex; align-items: center; justify-content: space-between; padding: 5px 12px;
+  background: var(--bg-code-head); border-bottom: 1px solid var(--border); font-family: var(--ui);
+}
+.cb-lang { font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--fg-muted); }
+.cb-copy { font-size: 11px; color: var(--fg-muted); padding: 2px 8px; border-radius: 3px; border: 1px solid var(--border); }
+.cb-copy:hover { background: var(--ov-3); color: var(--fg); }
+.cb-body { padding: 14px 16px; overflow-x: auto; }
+
+.prose table {
+  border-collapse: collapse; width: 100%; margin: 1.4em 0; font-size: 13.5px;
+  display: block; overflow-x: auto;
+}
+.prose th, .prose td { border: 1px solid var(--border); padding: 7px 12px; text-align: left; }
+.prose th { background: var(--bg-th); color: var(--fg-strong); font-weight: 600; white-space: nowrap; }
+.prose tr:nth-child(even) td { background: var(--ov-1); }
+.prose input[type=checkbox] { accent-color: var(--accent); margin-right: .45em; transform: translateY(1px); }
+.prose li.task { list-style: none; margin-left: -1.35em; }
+.prose .anchor { opacity: 0; color: var(--fg-dim); text-decoration: none; border: none; margin-left: .35em; font-weight: 400; }
+.prose h1:hover .anchor, .prose h2:hover .anchor, .prose h3:hover .anchor,
+.prose .anchor:focus-visible { opacity: 1; }
+
+.frontmatter {
+  border: 1px solid var(--border); border-radius: 6px; background: var(--ov-1);
+  padding: 12px 16px; margin: 0 0 26px; font-family: var(--mono); font-size: 12.5px; color: var(--fg-muted);
+}
+.frontmatter .fm-k { color: var(--blue); }
+
+/* ---------- 目次 ---------- */
+.md-layout { display: flex; min-height: 100%; }
+.md-main { flex: 1; min-width: 0; }
+.toc {
+  flex: 0 0 230px; border-left: 1px solid var(--border-soft); padding: 34px 14px 80px;
+  position: sticky; top: 0; align-self: flex-start; max-height: 100%; overflow: auto;
+}
+.toc .t { font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--fg-muted); margin-bottom: 10px; }
+.toc a {
+  display: block; color: var(--fg-muted); text-decoration: none; font-size: 12.5px;
+  padding: 3px 8px; border-left: 2px solid transparent; line-height: 1.45;
+}
+.toc a:hover { color: var(--fg-strong); }
+.toc a.lv3 { padding-left: 22px; font-size: 12px; }
+.toc a.lv4 { padding-left: 34px; font-size: 11.5px; }
+.toc a.on { color: var(--fg-strong); border-left-color: var(--status); background: var(--ov-2); }
+@media (max-width: 1100px) { .toc { display: none; } }
+
+/* ---------- ブックモード（複数ファイルの通読） ---------- */
+.book-sep {
+  margin: 60px 0 30px; padding: 10px 0 8px; border-top: 2px solid var(--border);
+  display: flex; align-items: baseline; gap: 10px; position: sticky; top: 0;
+  background: var(--bg); z-index: 2;
+}
+.book-sep .no { font-family: var(--mono); font-size: 11px; color: var(--fg-dim); }
+.book-sep .nm { font-size: 15px; color: var(--fg-strong); font-weight: 600; }
+.book-sep .pt { font-family: var(--mono); font-size: 11.5px; color: var(--fg-dim); margin-left: auto; }

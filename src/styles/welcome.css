@@ -1,0 +1,93 @@
+/* =========================================================================
+   ようこそ画面 / ドロップ / パレット / トースト / 設定
+   ========================================================================= */
+
+/* ---------- ようこそ ---------- */
+#welcome { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 30px; overflow: auto; }
+.wel { max-width: 680px; width: 100%; }
+.wel .logo { font-family: var(--mono); font-size: 34px; color: var(--fg-strong); letter-spacing: -.02em; margin-bottom: 2px; }
+.wel .logo b { color: var(--status); font-weight: 400; }
+.wel .tag { color: var(--fg-muted); margin-bottom: 30px; font-size: 13px; }
+.drop {
+  border: 1.5px dashed var(--border-dash); border-radius: 10px; padding: 34px; text-align: center;
+  transition: .15s; background: var(--ov-1);
+}
+.drop.hot { border-color: var(--status); background: var(--bg-veil); }
+.drop .t { font-size: 15px; color: var(--fg); margin-bottom: 6px; }
+.drop .s { font-size: 12.5px; color: var(--fg-muted); margin-bottom: 18px; }
+.wel .btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.pbtn { padding: 9px 18px; background: var(--accent); color: var(--accent-fg); border-radius: 3px; font-size: 13px; }
+.pbtn:hover { background: var(--accent-hover); }
+.sbtn { padding: 9px 18px; border: 1px solid var(--border-strong); border-radius: 3px; font-size: 13px; color: var(--fg); }
+.sbtn:hover { background: var(--ov-3); }
+.wel .opts { margin-top: 20px; display: flex; gap: 18px; justify-content: center; color: var(--fg-muted); font-size: 12px; flex-wrap: wrap; }
+.wel .opts label { display: flex; gap: 6px; align-items: center; cursor: pointer; }
+.wel .keys { margin-top: 28px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 24px; font-size: 12px; color: var(--fg-muted); }
+.wel .keys kbd {
+  font-family: var(--mono); background: var(--ov-3); border: 1px solid var(--border);
+  border-bottom-width: 2px; border-radius: 3px; padding: 1px 6px; color: var(--fg); font-size: 11px;
+}
+.wel .support { margin-top: 26px; font-size: 11.5px; color: var(--fg-muted); line-height: 1.9; }
+.wel .recent { margin-top: 26px; }
+.wel .recent .t { font-size: 11px; letter-spacing: .09em; text-transform: uppercase; color: var(--fg-muted); margin-bottom: 8px; }
+.wel .recent .list { display: flex; flex-direction: column; border: 1px solid var(--border-soft); border-radius: 6px; overflow: hidden; }
+@media (max-width: 620px) { .wel .keys { grid-template-columns: 1fr; } }
+
+#dropveil {
+  position: fixed; inset: 0; background: var(--bg-veil); border: 2px dashed var(--status);
+  z-index: 200; display: none; align-items: center; justify-content: center;
+  font-size: 17px; color: var(--fg-strong);
+}
+#dropveil.on { display: flex; }
+
+/* ---------- コマンドパレット ---------- */
+#palette {
+  position: fixed; inset: 0; z-index: 300; display: none; justify-content: center;
+  padding-top: 80px; background: var(--bg-scrim);
+}
+#palette.on { display: flex; }
+.pal {
+  width: min(620px, 92vw); background: var(--bg-widget); border: 1px solid var(--border-strong);
+  border-radius: 6px; box-shadow: var(--shadow-2); overflow: hidden;
+  height: max-content; max-height: 70vh; display: flex; flex-direction: column;
+}
+.pal input {
+  width: calc(100% - 16px); background: var(--bg-input); border: 1px solid var(--focus); color: var(--fg);
+  padding: 8px 10px; font-size: 13px; border-radius: 3px; margin: 8px;
+}
+.pal input:focus { outline: none; }
+.pal .hint { padding: 0 16px 6px; font-size: 11px; color: var(--fg-dim); }
+.pal .list { overflow: auto; padding-bottom: 6px; }
+.pal .it { padding: 6px 14px; display: flex; gap: 8px; align-items: baseline; cursor: pointer; font-size: 13px; }
+.pal .it .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pal .it .dim { color: var(--fg-dim); font-size: 11.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pal .it .key { margin-left: auto; font-family: var(--mono); font-size: 11px; color: var(--fg-dim); flex: 0 0 auto; }
+.pal .it.on { background: var(--bg-select); }
+.pal .grp { padding: 8px 14px 3px; font-size: 10.5px; letter-spacing: .09em; text-transform: uppercase; color: var(--fg-dim); }
+
+/* ---------- トースト ---------- */
+.toast {
+  position: fixed; bottom: 36px; right: 20px; background: var(--bg-toast);
+  border: 1px solid var(--border-strong); border-radius: 5px; padding: 9px 15px; font-size: 12.5px;
+  box-shadow: var(--shadow-1); z-index: 400; opacity: 0; transform: translateY(8px);
+  transition: .18s; color: var(--fg); max-width: min(420px, 80vw); pointer-events: none;
+}
+.toast.on { opacity: 1; transform: none; }
+
+/* ---------- 進捗バー ---------- */
+#loading {
+  position: fixed; left: 0; right: 0; top: 0; height: 3px; z-index: 500; display: none;
+  background: var(--ov-3);
+}
+#loading.on { display: block; }
+#loading i { display: block; height: 100%; background: var(--status); width: 0; transition: width .15s; }
+
+/* ---------- 設定パネル ---------- */
+.settings { padding: 6px 0 20px; overflow: auto; flex: 1; }
+.set-group { padding: 10px 14px; border-bottom: 1px solid var(--border-soft); }
+.set-group .t { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--fg-muted); margin-bottom: 8px; }
+.set-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 4px 0; font-size: 12.5px; }
+.set-row label { color: var(--fg); cursor: pointer; }
+.set-row .val { font-family: var(--mono); font-size: 11.5px; color: var(--fg-muted); min-width: 44px; text-align: right; }
+.set-row input[type=range] { flex: 1; accent-color: var(--accent); max-width: 130px; }
+.set-row select { background: var(--bg-input); color: var(--fg); border: 1px solid var(--border); padding: 3px 6px; border-radius: 3px; }

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="フォルダをまるごと読み込んで、構造・関係・中身をその場でレビューする。ファイルはブラウザの中だけで処理され、どこにも送信されません。">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="./favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./icon.svg">
+<meta name="theme-color" content="#0e639c">
+<title>File Review Studio</title>
+</head>
+<body>
+<a class="skip-link" href="#main">本文へ移動</a>
+
+<div id="app">
+
+  <div id="titlebar">
+    <div class="tb-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="tb-actions">
+      <button class="tb-btn" id="btnFolder">フォルダを開く</button>
+      <button class="tb-btn" id="btnFiles">ファイルを開く</button>
+      <button class="tb-btn" id="btnReload" title="開いているフォルダを読み直す (F5)" hidden>読み直す</button>
+    </div>
+    <div class="title" id="winTitle">File Review Studio</div>
+    <div class="tb-actions">
+      <button class="tb-btn" id="btnTheme" title="ライト / ダークを切り替える">◑<span class="lbl">テーマ</span></button>
+      <button class="tb-btn" id="btnPalette" title="Ctrl+P">クイックオープン</button>
+      <button class="tb-btn" id="btnReset">閉じる</button>
+    </div>
+  </div>
+
+  <div id="body">
+    <div id="activitybar" role="tablist" aria-label="サイドバーの切り替え" aria-orientation="vertical">
+      <button class="act on" data-panel="explorer" title="エクスプローラー (Ctrl+Shift+E)" role="tab" aria-selected="true" aria-label="エクスプローラー">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 6.5A1.5 1.5 0 014.5 5h4l2 2.5h7A1.5 1.5 0 0119 9v8.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 013 17.5v-11z"/></svg>
+      </button>
+      <button class="act" data-panel="search" title="全文検索 (Ctrl+Shift+F)" role="tab" aria-selected="false" aria-label="全文検索">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l4.5 4.5"/></svg>
+      </button>
+      <button class="act" data-panel="relations" title="ファイル間の関係" role="tab" aria-selected="false" aria-label="ファイル間の関係">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="6" cy="6" r="2.6"/><circle cx="18" cy="9" r="2.6"/><circle cx="10" cy="18" r="2.6"/><path d="M8.3 7.2l7.2 1.3M16.6 11.2l-5 4.9M8 8.4l1.5 7"/></svg>
+      </button>
+      <button class="act" data-panel="insights" title="気づき（読む順番・リンク切れ・循環）" role="tab" aria-selected="false" aria-label="気づき">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 3a6 6 0 00-3.5 10.9c.5.4.8 1 .8 1.6v.5h5.4v-.5c0-.6.3-1.2.8-1.6A6 6 0 0012 3z"/><path d="M10 19h4M10.5 21h3"/></svg>
+        <span class="dot" id="insDot" hidden>0</span>
+      </button>
+      <button class="act" data-panel="review" title="レビューの記録" role="tab" aria-selected="false" aria-label="レビューの記録">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6 3.5h9L19 8v12.5H6z"/><path d="M14.5 3.5V8H19"/><path d="M9 13l2 2 4-4"/></svg>
+        <span class="dot" id="rvDot" hidden>0</span>
+      </button>
+      <button class="act" data-panel="overview" title="プロジェクト概要" role="tab" aria-selected="false" aria-label="プロジェクト概要">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="4" y="4" width="7" height="9" rx="1"/><rect x="13" y="4" width="7" height="5" rx="1"/><rect x="13" y="11" width="7" height="9" rx="1"/><rect x="4" y="15" width="7" height="5" rx="1"/></svg>
+      </button>
+      <div class="spacer"></div>
+      <button class="act" data-panel="settings" title="表示の設定" role="tab" aria-selected="false" aria-label="表示の設定">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3.5v2M12 18.5v2M20.5 12h-2M5.5 12h-2M18 6l-1.4 1.4M7.4 16.6L6 18M18 18l-1.4-1.4M7.4 7.4L6 6"/></svg>
+      </button>
+    </div>
+
+    <div id="sidebar">
+      <!-- エクスプローラー -->
+      <div class="side-panel on" data-panel="explorer" role="tabpanel" aria-label="エクスプローラー">
+        <div class="side-head"><span>エクスプローラー</span>
+          <span class="mini">
+            <button class="icon-btn" id="btnExpand" title="すべて展開" aria-label="すべて展開"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 15l4 4 4-4M5 9l4-4 4 4"/></svg></button>
+            <button class="icon-btn" id="btnCollapse" title="すべて折りたたむ" aria-label="すべて折りたたむ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 9l4-4 4 4M5 15l4 4 4-4"/></svg></button>
+          </span>
+        </div>
+        <div class="filter-wrap"><input class="tinput" id="treeFilter" placeholder="ファイル名で絞り込み" aria-label="ファイル名で絞り込み"></div>
+        <div id="tree" role="tree" aria-label="ファイルツリー"><div class="empty-note">フォルダを開くと、ここに構造が表示されます。</div></div>
+      </div>
+
+      <!-- 検索 -->
+      <div class="side-panel" data-panel="search" role="tabpanel" aria-label="全文検索">
+        <div class="side-head"><span>全文検索</span></div>
+        <div class="filter-wrap">
+          <input class="tinput" id="searchInput" type="search" placeholder="テキストを検索" aria-label="検索する文字列">
+          <div class="search-opts" id="searchOpts">
+            <button class="tg" data-opt="caseSensitive" aria-pressed="false" title="大文字と小文字を区別する">Aa</button>
+            <button class="tg" data-opt="word" aria-pressed="false" title="単語単位で一致させる">ab|</button>
+            <button class="tg" data-opt="regex" aria-pressed="false" title="正規表現として扱う">.*</button>
+          </div>
+          <input class="tinput" id="searchInclude" style="margin-top:7px" placeholder="対象を絞る（例: *.md, src/）" aria-label="対象ファイルの絞り込み">
+        </div>
+        <div class="search-body" id="searchResults"><div class="empty-note">読み込んだテキストファイルの中身を検索します。</div></div>
+      </div>
+
+      <!-- 関係 -->
+      <div class="side-panel" data-panel="relations" role="tabpanel" aria-label="ファイル間の関係">
+        <div class="side-head"><span>ファイル間の関係</span></div>
+        <button class="side-btn" id="btnGraph">関係グラフを開く</button>
+        <div class="rel-body" id="relBody"><div class="empty-note">ファイルを開くと、そのファイルの参照関係を表示します。</div></div>
+      </div>
+
+      <!-- 気づき -->
+      <div class="side-panel" data-panel="insights" role="tabpanel" aria-label="気づき">
+        <div class="side-head"><span>気づき</span></div>
+        <div class="rel-body" id="insBody"><div class="empty-note">フォルダを開くと、気づいた点をここに並べます。</div></div>
+      </div>
+
+      <!-- レビュー -->
+      <div class="side-panel" data-panel="review" role="tabpanel" aria-label="レビューの記録">
+        <div class="side-head"><span>レビューの記録</span></div>
+        <button class="side-btn" id="btnReport">レポートを開く</button>
+        <button class="side-btn ghost" id="btnExportReview">Markdown で書き出す</button>
+        <div class="rel-body" id="rvBody"><div class="empty-note">フォルダを開くと、レビューの進み具合をここに表示します。</div></div>
+        <button class="side-btn ghost" id="btnClearReview" style="margin-top:auto">この記録を消す</button>
+      </div>
+
+      <!-- 概要 -->
+      <div class="side-panel" data-panel="overview" role="tabpanel" aria-label="プロジェクト概要">
+        <div class="side-head"><span>プロジェクト概要</span></div>
+        <button class="side-btn" id="btnOverview">概要ページを開く</button>
+        <button class="side-btn ghost" id="btnBook">まとめて通読する</button>
+        <div class="rel-body" id="ovBody"><div class="empty-note">まだ何も読み込まれていません。</div></div>
+      </div>
+
+      <!-- 設定 -->
+      <div class="side-panel" data-panel="settings" role="tabpanel" aria-label="表示の設定">
+        <div class="side-head"><span>表示の設定</span></div>
+        <div class="settings">
+          <div class="set-group">
+            <div class="t">テーマ</div>
+            <div class="seg" id="setTheme">
+              <button data-theme="system" aria-pressed="true">自動</button>
+              <button data-theme="light" aria-pressed="false">ライト</button>
+              <button data-theme="dark" aria-pressed="false">ダーク</button>
+            </div>
+          </div>
+          <div class="set-group">
+            <div class="t">文字の大きさ</div>
+            <div class="set-row"><label for="setUi">画面全体</label><input type="range" id="setUi" min="11" max="20" step="1"><span class="val" id="setUiVal"></span></div>
+            <div class="set-row"><label for="setCode">コード</label><input type="range" id="setCode" min="10" max="22" step="1"><span class="val" id="setCodeVal"></span></div>
+            <div class="set-row"><label for="setProse">文章</label><input type="range" id="setProse" min="12" max="24" step="1"><span class="val" id="setProseVal"></span></div>
+            <div class="set-row"><label for="setLh">コードの行間</label><input type="range" id="setLh" min="14" max="34" step="1"><span class="val" id="setLhVal"></span></div>
+            <div class="set-row"><label for="setWidth">文章の横幅</label><input type="range" id="setWidth" min="640" max="1200" step="20"><span class="val" id="setWidthVal"></span></div>
+          </div>
+          <div class="set-group">
+            <div class="t">動作</div>
+            <div class="set-row"><label for="setRoles">ツリーに役割を表示する</label><input type="checkbox" id="setRoles"></div>
+            <div class="set-row"><label for="setIgnore">node_modules などを読み飛ばす</label><input type="checkbox" id="setIgnore"></div>
+            <div class="set-row"><label for="setRestore">前回のプロジェクトを覚えておく</label><input type="checkbox" id="setRestore"></div>
+          </div>
+          <div class="set-group">
+            <button class="side-btn ghost" id="setReset" style="margin:0;width:100%">設定を初期値に戻す</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="resizer" role="separator" aria-orientation="vertical" aria-label="サイドバーの幅" tabindex="0"></div>
+
+    <div id="main">
+      <div id="tabbar" role="tablist" aria-label="開いているタブ"></div>
+      <div id="panes">
+        <div id="welcome">
+          <div class="wel">
+            <div class="logo">File <b>Review</b> Studio</div>
+            <div class="tag">フォルダをまるごと読み込んで、構造・関係・中身をその場でレビューする</div>
+            <div class="drop" id="drop">
+              <div class="t">フォルダをここにドロップ</div>
+              <div class="s">ファイルはブラウザの中だけで処理され、どこにも送信されません</div>
+              <div class="btns">
+                <button class="pbtn" id="btnFolder2">フォルダを開く</button>
+                <button class="sbtn" id="btnFiles2">ファイルを選ぶ</button>
+              </div>
+              <div class="opts">
+                <label><input type="checkbox" id="optIgnore" checked> node_modules や .git、ビルド成果物を除外する</label>
+              </div>
+            </div>
+
+            <div class="recent" style="display:none">
+              <div class="t">最近開いたプロジェクト</div>
+              <div class="list" id="recentList"></div>
+            </div>
+
+            <div class="keys">
+              <div><kbd>Ctrl</kbd>+<kbd>P</kbd> ファイルをすばやく開く</div>
+              <div><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> コマンドを実行</div>
+              <div><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd> 全文検索</div>
+              <div><kbd>Ctrl</kbd>+<kbd>F</kbd> ファイル内を検索</div>
+              <div><kbd>Ctrl</kbd>+<kbd>B</kbd> サイドバーの表示切替</div>
+              <div><kbd>Ctrl</kbd>+<kbd>\</kbd> 画面を左右に分ける</div>
+              <div><kbd>Ctrl</kbd>+<kbd>Enter</kbd> 確認済みにする</div>
+              <div><kbd>Ctrl</kbd>+<kbd>W</kbd> タブを閉じる</div>
+            </div>
+            <div class="support">
+              対応表示: Markdown（目次つき整形） / ソースコード（構文ハイライト・行番号・関数一覧） / CSV・TSV（並べ替えと絞り込みつきの表） / PDF / Word（.docx） / 画像 / JSON・YAML などのテキスト<br>
+              解析: ディレクトリツリー、ファイルとフォルダの役割の推定、参照関係、読む順番の提案、リンク切れ・循環参照・孤立ファイルの検出、関係グラフ<br>
+              レビュー: 行ごとのメモ、確認済みの記録、進捗、Markdown / HTML でのレポート出力
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="statusbar">
+        <span id="stRoot">フォルダ未選択</span>
+        <span id="stCount"></span>
+        <span class="sp"></span>
+        <button id="stReview" hidden></button>
+        <span id="stFile"></span>
+        <span id="stMeta"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="loading"><i></i></div>
+<div id="dropveil">ドロップしてフォルダを読み込む</div>
+<div id="palette" role="dialog" aria-modal="true" aria-label="クイックオープン">
+  <div class="pal">
+    <input id="palInput" placeholder="ファイル名を入力（&gt; でコマンド）" aria-label="ファイル名またはコマンド" autocomplete="off">
+    <div class="list" id="palList" role="listbox"></div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<input type="file" id="pickFolder" webkitdirectory directory multiple hidden>
+<input type="file" id="pickFiles" multiple hidden>
+
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>

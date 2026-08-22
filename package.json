@@ -1,0 +1,34 @@
+{
+  "name": "file-review-studio",
+  "version": "0.2.0",
+  "private": true,
+  "description": "フォルダをまるごと読み込んで、構造・関係・中身をその場でレビューするローカル完結型ビューア",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "build:single": "vite build --mode single",
+    "preview": "vite preview",
+    "preview:single": "vite preview --outDir dist-single"
+  },
+  "dependencies": {
+    "dompurify": "^3.1.5",
+    "highlight.js": "^11.9.0",
+    "mammoth": "^1.7.2",
+    "marked": "^12.0.2",
+    "mermaid": "^10.9.1",
+    "papaparse": "^5.4.1",
+    "pdfjs-dist": "^4.10.38"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0",
+    "vite-plugin-pwa": "^1.3.0",
+    "vite-plugin-singlefile": "^2.0.2"
+  },
+  "packageManager": "pnpm@10.33.0",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  }
+}

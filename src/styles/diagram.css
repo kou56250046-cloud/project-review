@@ -1,0 +1,71 @@
+/* =========================================================================
+   図の表示（罫線アート・Mermaid・レイヤーカード）
+   ========================================================================= */
+.dgm-shell {
+  border: 1px solid var(--border); border-radius: 6px; overflow: hidden;
+  margin: 1.5em 0; background: var(--bg-code);
+}
+.dgm-scroll { overflow-x: auto; padding: 18px 20px; }
+
+/* 罫線アートは等幅グリッドを崩さないことが最優先。
+   合字と字送りを止め、全角/半角の実測比率で letter-spacing を補正する。 */
+pre.dgm {
+  margin: 0; padding: 0; border: none; background: none; border-radius: 0;
+  font-family: Consolas, "Cascadia Mono", "DejaVu Sans Mono", Menlo, "Liberation Mono",
+               "MS Gothic", "Hiragino Kaku Gothic ProN", monospace;
+  font-size: var(--fs-code); line-height: 1.18; white-space: pre; color: var(--fg);
+  letter-spacing: 0; font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0;
+  text-rendering: optimizeSpeed;
+}
+pre.dgm .bx { color: var(--blue); letter-spacing: var(--bx, 0px); }
+pre.dgm .arw { color: var(--green); letter-spacing: var(--aw, 0px); }
+pre.dgm .fw { letter-spacing: var(--fw, 0px); }
+pre.dgm .lbl { color: var(--yellow); }
+
+.dgm-ctl { display: flex; align-items: center; gap: 6px; }
+.dgm-ctl .mini-b {
+  width: 22px; height: 20px; border: 1px solid var(--border); border-radius: 3px; color: var(--fg-muted);
+  display: flex; align-items: center; justify-content: center; font-size: 12px; line-height: 1;
+}
+.dgm-ctl .mini-b:hover { background: var(--ov-3); color: var(--fg); }
+.dgm-ctl .sz { font-size: 10.5px; color: var(--fg-dim); font-family: var(--mono); min-width: 30px; text-align: center; }
+
+.mermaid-box { padding: 20px; overflow-x: auto; text-align: center; color: var(--fg-muted); font-size: 12.5px; }
+.mermaid-box svg { max-width: 100%; height: auto; }
+
+.code-wrap.tight { line-height: 1.2; font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0; }
+.code-wrap.tight .lcode { color: var(--fg); }
+.code-wrap.tight .lcode span { color: inherit !important; }
+
+/* ---------- レイヤーカード ---------- */
+.layers { padding: 22px 24px 24px; display: flex; flex-direction: column; align-items: stretch; }
+.lcard { border: 1px solid var(--border); border-radius: 8px; background: var(--ov-1); overflow: hidden; }
+.lc-t {
+  display: flex; align-items: baseline; gap: 10px; padding: 9px 15px; background: var(--bg-code-head);
+  border-bottom: 1px solid var(--border); color: var(--fg-strong); font-weight: 600; font-size: 13.5px; flex-wrap: wrap;
+}
+.lc-i {
+  font-family: var(--mono); font-size: 10.5px; color: var(--blue); border: 1px solid var(--border-strong);
+  border-radius: 3px; padding: 0 5px; font-weight: 400; letter-spacing: .06em;
+}
+.lc-meta { color: var(--fg-muted); font-weight: 400; font-size: 12px; }
+.lc-b { padding: 11px 15px; display: flex; flex-direction: column; gap: 6px; }
+.lc-line { font-size: 13px; color: var(--fg); line-height: 1.7; display: flex; gap: 9px; align-items: baseline; }
+.lc-line .m { color: var(--green); flex: 0 0 auto; font-size: 12px; }
+.lc-line.key { font-family: var(--mono); color: var(--yellow); font-size: 12.5px; }
+.lc-line.foot {
+  color: var(--fg-muted); font-size: 12px; border-top: 1px dashed var(--border);
+  padding-top: 7px; margin-top: 2px;
+}
+.lc-line code {
+  font-family: var(--mono); font-size: .9em; background: var(--ov-3); color: var(--orange);
+  padding: .08em .4em; border-radius: 3px;
+}
+.lc-ar { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 5px 0; }
+.lc-ar i.rule { width: 1px; background: var(--border-strong); display: block; height: 11px; }
+.lc-ar .t {
+  font-size: 11.5px; color: var(--fg-muted); background: var(--ov-2);
+  border: 1px solid var(--border); border-radius: 11px; padding: 2px 11px;
+}
+.lc-ar .t code { font-family: var(--mono); color: var(--fg); background: none; padding: 0; }
+.lc-ar .cap { color: var(--blue); font-size: 11px; line-height: 1; margin-top: -2px; }
