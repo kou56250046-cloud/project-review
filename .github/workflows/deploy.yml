@@ -22,9 +22,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # バージョンは package.json の packageManager から読む
+      # （ここで version を併記すると衝突してセットアップに失敗する）
       - uses: pnpm/action-setup@v4
-        with:
-          version: 10
 
       - uses: actions/setup-node@v4
         with:
