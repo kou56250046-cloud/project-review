@@ -172,7 +172,8 @@ function fromPrisma(f, tables, rels) {
 /* ---------- Python（Django / SQLAlchemy） ---------- */
 function fromPython(f, tables, rels) {
   const t = f.text;
-  const re = /^class\s+(\w+)\s*\(([^)]*)\)\s*:([\s\S]*?)(?=^class\s|\Z)/gm;
+  // JavaScript の正規表現に \Z はないため、文字列の終わりは (?![\s\S]) で表す
+  const re = /^class\s+(\w+)\s*\(([^)]*)\)\s*:([\s\S]*?)(?=^class\s|(?![\s\S]))/gm;
   let m, n = 0;
   while ((m = re.exec(t)) !== null) {
     const cls = m[1];
