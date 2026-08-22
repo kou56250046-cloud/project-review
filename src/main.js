@@ -455,6 +455,29 @@ listProjects().then(list => {
   if (list.length) renderRecent();
 });
 
+/* ---------- 更新の受け取り ----------
+   新しい版が出たら、勝手に入れ替えず知らせて選んでもらう。
+   レビューの途中で画面が作り直されると困るため。 */
+if (!import.meta.env || !import.meta.env.DEV) {
+  import("virtual:pwa-register").then(({ registerSW }) => {
+    const bar = $("#updatebar");
+    const apply = registerSW({
+      immediate: true,
+      onNeedRefresh() {
+        bar.classList.add("on");
+      },
+      onOfflineReady() {
+        toast("オフラインでも開けるようになりました");
+      },
+    });
+    bar.querySelector(".go").onclick = () => {
+      bar.classList.remove("on");
+      apply(true);
+    };
+    bar.querySelector(".later").onclick = () => bar.classList.remove("on");
+  }).catch(() => { /* Service Worker が使えない環境では何もしない */ });
+}
+
 // 開発時だけ、見本プロジェクトを読み込むための入口を用意する
 if (import.meta.env && import.meta.env.DEV) import("./dev/demo.js");
 
