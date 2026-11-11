@@ -132,3 +132,9 @@
 /* 図モード：行間を詰めて罫線の縦線をつなげる */
 .code-view.tight { line-height: 1.2; font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0; }
 .code-view.tight .lcode span { color: inherit !important; }
+
+/* HTML の画面プレビュー。中身はブラウザで直接開いたときと同じく白地で見せる */
+.html-preview { position: absolute; inset: 0; display: flex; flex-direction: column; background: var(--bg-stage); }
+.html-preview[hidden] { display: none; }
+.html-preview iframe { flex: 1; width: 100%; border: 0; border-top: 1px solid var(--border); background: #fff; color-scheme: light; }
+.html-preview-msg { margin: auto; color: var(--fg); opacity: .7; font-size: 13px; }

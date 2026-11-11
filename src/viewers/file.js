@@ -7,6 +7,7 @@ import { esc, fmtSize } from "../core/util.js";
 import { roleOfFile } from "../core/roles.js";
 import { isDone, toggleDone, notesOf } from "../core/review.js";
 import { renderCode } from "./code.js";
+import { renderHtml, isHtmlFile } from "./htmlPreview.js";
 import { renderMarkdown } from "./markdown.js";
 import { renderCSV } from "./csv.js";
 import { renderPDF, renderDocx, renderImage, renderUnsupported } from "./media.js";
@@ -54,7 +55,7 @@ export function buildFilePane(pane, f) {
     case "pdf": renderPDF(f, body, head); break;
     case "docx": renderDocx(f, body, head); break;
     case "image": renderImage(f, body, head); break;
-    case "text": ctl = renderCode(f, body, head); break;
+    case "text": ctl = isHtmlFile(f) ? renderHtml(f, body, head) : renderCode(f, body, head); break;
     default: renderUnsupported(f, body); break;
   }
   if (ctl) controllers.set(f.path, ctl);
