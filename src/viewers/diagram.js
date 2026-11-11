@@ -131,6 +131,162 @@ function layerCards(blocks) {
   return wrap;
 }
 
+/* ---------- 縦に流れる罫線図（枠なし）をフロー図に組み直す ---------- */
+
+/* 横の受け渡し: 「──▶」「──ラベル──▶」「─(ラベル)→」「-->」「A → B」（D→C のような詰めた矢印は文の一部とみなす） */
+const FLOW_EDGE_RE = /\s*(?:(?:[─━]+|-{2,})\s*(?:([^─━▶►→]+?)\s*(?:[─━]+|-{2,})|[(（]([^()（）]*)[)）]\s*[─━]*)?\s*(?:[▶►→]|>)|\s[→⇢⟶]\s)\s*/g;
+/* 縦のつなぎ: 「▼ ラベル」「↓(ラベル)」「│」 */
+const FLOW_VERT_RE = /^(?:[│┃|]\s*)*[▼↓]\s*(.*)$|^[│┃]+$/;
+const CIRCLED_RE = /^([①-⑳])\s*/;
+
+/**
+ * 枠を使わず「行＝工程、▼＝つなぎ、──▶＝横の受け渡し」で書かれた図を解釈する。
+ * ツリーや2次元の配置など、この形に当てはまらない図には null を返す。
+ */
+export function parseFlowDiagram(raw) {
+  const lines = String(raw).replace(/\s+$/, "").split("\n");
+  // 枠・ツリー・交差を含む図は対象外
+  if (lines.some(l => /[┌┐┘╭╮╯┏┓┛├┤┬┴┼]|└[─━]|\+-/.test(l))) return null;
+
+  const rows = [];
+  let lastRow = null;
+  let edgeCount = 0;
+  let prevIndent = -1, deeper = 0;
+  for (const original of lines) {
+    if (!original.trim()) continue;
+    const t = original.trim();
+
+    const v = t.match(FLOW_VERT_RE);
+    if (v) {
+      prevIndent = -1;
+      const label = (v[1] || "").trim();
+      const prev = rows[rows.length - 1];
+      if (prev && prev.type === "conn") { if (label) prev.label = label; }
+      else rows.push({ type: "conn", label });
+      continue;
+    }
+
+    // 直前の工程からの分岐・補足（「└ …」「→ …」「（…）」だけの行）
+    const br = t.match(/^[└→⇢]\s*(.+)$/) || t.match(/^([（(][^）)]*[）)])$/);
+    if (br) {
+      if (!lastRow) return null;
+      lastRow.nodes[lastRow.nodes.length - 1].notes.push(br[1].trim());
+      continue;
+    }
+
+    // つなぎを挟まずに字下げが深くなる行が続くなら、入れ子を表した文章（擬似コードなど）
+    const indent = original.length - original.trimStart().length;
+    if (prevIndent >= 0 && indent >= prevIndent + 2 && ++deeper >= 2) return null;
+    prevIndent = indent;
+
+    // 行末の「│」は下の流れへの合流を指す。罫線の文字幅は環境で変わるため、桁から合流先の箱は決めない
+    const line = original.replace(/\s*[│┃|]?\s*$/, "");
+    // 行の途中に縦線が残るなら2次元の図
+    if (/[│┃]/.test(line.trim())) return null;
+
+    const nodes = [], edges = [];
+    let last = 0, m;
+    FLOW_EDGE_RE.lastIndex = 0;
+    while ((m = FLOW_EDGE_RE.exec(line))) {
+      nodes.push({ text: line.slice(last, m.index), start: last });
+      edges.push((m[1] || m[2] || "").trim().replace(/^[(（]([^()（）]*)[)）]$/, "$1"));
+      last = m.index + m[0].length;
+    }
+    nodes.push({ text: line.slice(last), start: last });
+
+    const parsed = [];
+    for (const n of nodes) {
+      // 矢じりの無い「──」の後ろは工程の補足
+      const parts = n.text.trim().split(/\s*[─━]{2,}\s*/).filter(Boolean);
+      // 文の間に大きな空白があるなら列が並んだ図
+      if (parts.some(p => /\S\s{4,}\S/.test(p))) return null;
+      parsed.push({ text: parts[0] || "", notes: parts.slice(1) });
+    }
+
+    const row = { type: "row", nodes: parsed, edges, merge: null };
+    // 相手のいない矢印は、下の流れへの合流
+    if (parsed[parsed.length - 1].text === "" && edges.length > 0) {
+      parsed.pop();
+      row.merge = { label: edges.pop() };
+    }
+    if (parsed.some(n => !n.text)) return null;
+    edgeCount += edges.length + (row.merge ? 1 : 0);
+    rows.push(row);
+    lastRow = row;
+  }
+
+  const steps = rows.filter(r => r.type === "row");
+  const nodeCount = steps.reduce((a, r) => a + r.nodes.length, 0);
+  const conns = rows.filter(r => r.type === "conn").length;
+  // 縦のつなぎが無いものは「A → B」の対応表や計算例であることが多いので対象外
+  if (steps.length < 3 || nodeCount < 4 || conns < 1 || conns + edgeCount < 2) return null;
+  return rows;
+}
+
+function flowNode(n) {
+  const el = document.createElement("div");
+  el.className = "fl-node";
+  let text = n.text;
+  let badge = "";
+  const c = text.match(CIRCLED_RE);
+  if (c) { badge = '<span class="fl-n">' + c[1] + "</span>"; text = text.slice(c[0].length); }
+  // 「名前（補足）」は補足を2行目に回す
+  const m = text.match(/^([^（(]+?)\s*([（(][^（()）]*[）)])$/);
+  let title = inlineTokens(text), meta = "";
+  if (m) { title = inlineTokens(m[1]); meta = '<div class="fl-meta">' + inlineTokens(m[2]) + "</div>"; }
+  const notes = n.notes.map(s => '<div class="fl-note"><span class="m">↳</span><span>' + inlineTokens(s) + "</span></div>").join("");
+  el.innerHTML = '<div class="fl-t">' + badge + "<span>" + title + "</span></div>" + meta + notes;
+  if (c) el.classList.add("step");
+  return el;
+}
+
+function flowEdge(label) {
+  const el = document.createElement("div");
+  el.className = "fl-h";
+  el.innerHTML = (label ? '<span class="t" title="' + esc(label) + '">' + esc(label) + "</span>" : "") + '<span class="ln"><i></i><b>▶</b></span>';
+  return el;
+}
+
+function flowChart(rows) {
+  const wrap = document.createElement("div");
+  wrap.className = "flow";
+  let prev = null;
+  for (const r of rows) {
+    if (r.type === "conn") {
+      const a = document.createElement("div");
+      a.className = "lc-ar fl-v";
+      a.innerHTML = '<i class="rule"></i>' + (r.label ? '<span class="t">' + inlineTokens(r.label) + "</span>" : "") +
+        '<i class="rule"></i><span class="cap">▼</span>';
+      wrap.appendChild(a);
+      prev = r;
+      continue;
+    }
+    // 工程が続くときは短い矢印でつなぐ。合流の行は上の行と並べて置く
+    if (prev && prev.type === "row" && !r.merge) {
+      const a = document.createElement("div");
+      a.className = "lc-ar fl-v short";
+      a.innerHTML = '<i class="rule"></i><span class="cap">▼</span>';
+      wrap.appendChild(a);
+    }
+    const row = document.createElement("div");
+    row.className = "fl-row" + (r.nodes.length > 1 || r.merge ? " chain" : "") + (r.merge ? " merge" : "");
+    r.nodes.forEach((n, i) => {
+      if (i > 0) row.appendChild(flowEdge(r.edges[i - 1]));
+      row.appendChild(flowNode(n));
+    });
+    if (r.merge) {
+      row.appendChild(flowEdge(r.merge.label));
+      const g = document.createElement("div");
+      g.className = "fl-node ghost";
+      g.innerHTML = '<div class="fl-t"><span>下の流れへ合流</span></div>';
+      row.appendChild(g);
+    }
+    wrap.appendChild(row);
+    prev = r;
+  }
+  return wrap;
+}
+
 function shellWithHead(labelText, rawForCopy) {
   const shell = document.createElement("div");
   shell.className = "dgm-shell";
@@ -150,7 +306,9 @@ function shellWithHead(labelText, rawForCopy) {
 
 export function diagramBlock(raw) {
   const layers = parseLayerDiagram(raw);
-  const { shell, ctl, cp } = shellWithHead(layers ? "図（レイヤー構造）" : "図（テキスト）", raw);
+  const flow = layers ? null : parseFlowDiagram(raw);
+  const { shell, ctl, cp } = shellWithHead(
+    layers ? "図（レイヤー構造）" : flow ? "図（フロー）" : "図（テキスト）", raw);
 
   const scroll = document.createElement("div");
   scroll.className = "dgm-scroll";
@@ -180,14 +338,14 @@ export function diagramBlock(raw) {
   }, "行間を切り替える");
   zoomCtl.appendChild(lh);
 
-  if (layers) {
-    const cards = layerCards(layers);
+  if (layers || flow) {
+    const cards = layers ? layerCards(layers) : flowChart(flow);
     shell.appendChild(cards);
     shell.appendChild(scroll);
     scroll.style.display = "none";
     const seg = document.createElement("span");
     seg.className = "seg";
-    const bCard = document.createElement("button"); bCard.textContent = "カード"; bCard.className = "on";
+    const bCard = document.createElement("button"); bCard.textContent = layers ? "カード" : "フロー"; bCard.className = "on";
     const bText = document.createElement("button"); bText.textContent = "原文";
     const set = (card) => {
       cards.style.display = card ? "flex" : "none";
