@@ -3,8 +3,10 @@
      - 罫線・矢印で描かれた図（等幅グリッドを補正して線をつなげる）
      - 「┌─ … ┐」で描かれた層構造をカードに組み直す
      - Mermaid 記法は実際に図として描く（必要になったときだけ読み込む）
+     - フロー記法（```flow。gemini-kit と同じ記法）はスイムレーン図に描く
    ========================================================================= */
 import { esc } from "../core/util.js";
+import { render as renderFlowNotation } from "./flowNotation.js";
 
 export const BOX_RE = /[─-╿▲▼◀▶←-↓⇄⇢⟶⟵]/;
 export const MERMAID_HEAD = /^\s*(graph\s+(TB|TD|BT|RL|LR)|flowchart|sequenceDiagram|classDiagram|stateDiagram(-v2)?|erDiagram|journey|gantt|pie\s|mindmap|timeline|gitGraph)\b/;
@@ -365,6 +367,65 @@ export function diagramBlock(raw) {
   ctl.appendChild(zoomCtl);
   ctl.appendChild(cp);
   calibrateGrid(pre);
+  return shell;
+}
+
+/* ---------- フロー記法（```flow） ---------- */
+export function flowNotationBlock(raw) {
+  const r = renderFlowNotation(raw);
+  const { shell, ctl, cp } = shellWithHead(r.svg ? "図（フロー記法）" : "図（フロー記法・描画できませんでした）", raw);
+
+  const src = document.createElement("pre");
+  src.className = "flow-src";
+  const code = document.createElement("code");
+  code.textContent = raw;
+  src.appendChild(code);
+
+  if (!r.svg) {
+    const lang = shell.querySelector(".cb-lang");
+    lang.title = r.graph.errors.map(e => e.line + " 行目: " + e.message).join("\n");
+    shell.appendChild(src);
+    ctl.appendChild(cp);
+    return shell;
+  }
+
+  const fig = document.createElement("div");
+  fig.className = "flow-fig";
+  const doc = new DOMParser().parseFromString(r.svg, "image/svg+xml");
+  const svg = document.importNode(doc.documentElement, true);
+  svg.removeAttribute("height");
+  svg.setAttribute("width", "100%");
+  svg.style.maxWidth = r.geo.width + "px";
+  // 横に長い図を本文幅まで縮めると文字が読めなくなるので、8割より小さくはせず横スクロールにする
+  svg.style.minWidth = Math.round(r.geo.width * 0.8) + "px";
+  svg.setAttribute("role", "img");
+  svg.setAttribute("aria-label", r.graph.title || "フロー図");
+  fig.appendChild(svg);
+  shell.appendChild(fig);
+  shell.appendChild(src);
+  src.style.display = "none";
+
+  if (r.graph.warnings.length) {
+    const w = document.createElement("span");
+    w.className = "chip dim";
+    w.textContent = "注意 " + r.graph.warnings.length;
+    w.title = r.graph.warnings.map(e => e.line + " 行目: " + e.message).join("\n");
+    ctl.appendChild(w);
+  }
+  const seg = document.createElement("span");
+  seg.className = "seg";
+  const bFig = document.createElement("button"); bFig.textContent = "フロー"; bFig.className = "on";
+  const bSrc = document.createElement("button"); bSrc.textContent = "原文";
+  const set = (on) => {
+    fig.style.display = on ? "block" : "none";
+    src.style.display = on ? "none" : "block";
+    bFig.classList.toggle("on", on); bSrc.classList.toggle("on", !on);
+  };
+  bFig.onclick = () => set(true);
+  bSrc.onclick = () => set(false);
+  seg.appendChild(bFig); seg.appendChild(bSrc);
+  ctl.appendChild(seg);
+  ctl.appendChild(cp);
   return shell;
 }
 

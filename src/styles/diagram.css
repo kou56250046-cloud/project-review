@@ -106,3 +106,12 @@ pre.dgm .lbl { color: var(--yellow); }
 .fl-h .ln b { color: var(--blue); font-size: 9px; font-weight: 400; line-height: 1; margin-left: -1px; }
 .fl-v.short { padding: 3px 0; }
 .fl-v.short i.rule { height: 8px; }
+
+/* ---------- フロー記法（```flow） ----------
+   SVG は白地前提の配色（gemini-kit と同じ）なので、ダークテーマでも図の面は白い紙にする */
+.flow-fig { padding: 12px; overflow-x: auto; background: #fff; }
+.flow-fig svg { display: block; height: auto; margin: 0 auto; }
+pre.flow-src {
+  margin: 0; padding: 14px 18px; border: none; border-radius: 0; background: none;
+  overflow-x: auto; font-family: var(--mono); font-size: var(--fs-code); line-height: 1.5; color: var(--fg);
+}

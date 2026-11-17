@@ -7,7 +7,8 @@ import hljs from "highlight.js/lib/common";
 import { S, actions } from "../core/state.js";
 import { $$, esc } from "../core/util.js";
 import { resolveRef } from "../core/analyze.js";
-import { looksLikeDiagram, diagramBlock, mermaidBlock, MERMAID_HEAD } from "./diagram.js";
+import { looksLikeDiagram, diagramBlock, mermaidBlock, flowNotationBlock, MERMAID_HEAD } from "./diagram.js";
+import { looksLikeFlow } from "./flowNotation.js";
 
 export function blobURL(path) {
   if (S.urlCache.has(path)) return S.urlCache.get(path);
@@ -45,6 +46,11 @@ export function decorateProse(art, f) {
     // Mermaid 記法はそのまま図に描く
     if (lang === "mermaid" || (!lang && MERMAID_HEAD.test(raw))) {
       pre.replaceWith(mermaidBlock(raw));
+      return;
+    }
+    // フロー記法（gemini-kit と同じ）はスイムレーン図に描く。言語指定なしでも記法として読めれば図にする
+    if (lang === "flow" || ((!lang || /^(text|txt|plain|plaintext)$/i.test(lang)) && looksLikeFlow(raw))) {
+      pre.replaceWith(flowNotationBlock(raw));
       return;
     }
     // 罫線・矢印で描かれた図は、行間を詰めて線がつながる形で表示する
